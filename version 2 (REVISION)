@@ -1,0 +1,265 @@
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Policy;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace PlaylistGenerator
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Program program = new Program();
+            List<string> playlist = null;
+            List<string> prevPlaylist = null;
+            string genre;
+            string song;
+
+            Console.WriteLine(">>>Welcome to Gwen's Playlist Generator!<<<");
+
+            while (true)
+            {
+                Console.WriteLine("| Would you like to generate a playlist? Pick one of these options to continue: |");
+                Console.WriteLine("Option 1: Select your favorite genre");
+                Console.WriteLine("Option 2: Select a song");
+                Console.WriteLine("Option 3: View generated playlist");
+                Console.WriteLine("Option 4: Undo last playlist creation");
+                Console.WriteLine("Option 5: Enjoy the music! (exit)");
+
+                string genreChoice = Console.ReadLine();
+                switch (genreChoice)
+                {
+                    case "1":
+                        genre = program.ChooseGenre();
+                        if (genre != null && program.ConfirmAction("Generate a playlist based on this genre"))
+                        {
+                            playlist = program.GeneratePlaylistByGenre(genre);
+                        }
+                        break;
+                    case "2":
+                        song = program.ChooseSong();
+                        if (song != null && program.ConfirmAction("Genreate a playlist based on this song"))
+                        {
+                            playlist = program.GeneratePlaylistBySong(song);
+                        }
+                        break;
+                    case "3":
+                        program.DisplayPlaylist(playlist);
+                        break;
+                    case "4":
+                        playlist = prevPlaylist;
+                        Console.WriteLine("Previous playlist has been undone.");
+                        break;
+                    case "5":
+                        Console.WriteLine("Thank you for using the Playlist Generator! Enjoy!");
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
+                }
+            }
+        }
+
+        bool ConfirmAction(string actionDescription)
+        {
+            Console.WriteLine($"\nYou chose to {actionDescription}. Are you sure? (yes/no)");
+            string confirmation = Console.ReadLine()?.ToLower();
+
+            if ( confirmation == "yes")
+            {
+                Console.WriteLine("Processing your request, please wait...");
+                Thread.Sleep(1000);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Action canceled. Return to list...");
+                return false;
+            }
+        }
+
+        // user story 1: have user pick a genre for playlist
+        string ChooseGenre()
+        {
+            Console.WriteLine("Choose a genre:");
+            Console.WriteLine("1. Rock\n2. Pop\n3. Rap\n4. Indie\n5. Country");
+            Console.WriteLine("6.Return to main menu.");
+            string genreChoice = Console.ReadLine();
+            string genre = null;
+
+            switch (genreChoice)
+            {
+                case "1":
+                    genre = "Rock";
+                    return genre;
+                case "2":
+                    genre = "Pop";
+                    return genre;
+                case "3":
+                    genre = "Rap";
+                    return genre;
+                case "4":
+                    genre = "Indie";
+                    return genre;
+                case "5":
+                    genre = "Country";
+                    return genre;
+                case "6":
+                    Console.WriteLine("Returning to the main menu...\n");
+                    return null;
+                default:
+                    genre = null;
+                    break;
+            }
+
+            if (genre == null)
+            {
+                Console.WriteLine("Invalid genre. Please try again.");
+            }
+            return genre;
+        }
+
+        // user story 2: Pick a song
+        string ChooseSong()
+        {
+            Console.WriteLine("Choose a song:");
+            Console.WriteLine("1. Bad Guy by Billie Eilish\n2. Shout by Tears For Fears\n3. Still into You by Paramore\n4. Shy Away by Twenty One Pilots\n5. American Kids by Kenny Chesney");
+            Console.WriteLine("6. Learn more about these songs\n7. Return to main menu.");
+            string songChoice = Console.ReadLine();
+            string song = null;
+
+            switch (songChoice)
+            {
+                case "1":
+                    song = "Bad Guy by Billie Eilish";
+                    return song;
+                case "2":
+                    song = "Shout by Tears For Fears";
+                    return song;
+                case "3":
+                    song = "Still into You by Paramore";
+                    return song;
+                case "4":
+                    song = "Shy Away by Twenty One Pilots";
+                    return song;
+                case "5":
+                    song = "American Kids by Kenny Chesney";
+                    return song;
+                case "6":
+                    ShowSongInfo();
+                    return null;
+                case "7":
+                    Console.WriteLine("Returning to main menu...\n");
+                    return null;
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    break;
+            }
+
+            if (song == null)
+            {
+                Console.WriteLine("You did not choose a valid option. No playlist will be created.");
+            }
+            return song;
+        }
+
+        void ShowSongInfo()
+        {
+            Console.WriteLine("Here's some information about the songs:");
+            Console.WriteLine(" - Bad Guy by Billie Eilish: A moody but upbeat pop song.");
+            Console.WriteLine(" - Shout by Tears For Fears: A classic 80s song.");
+            Console.WriteLine(" - Still into You by Paramore: An edgy rock song.");
+            Console.WriteLine(" - Shy Away by Twenty One Pilots: An upbeat alternative song.");
+            Console.WriteLine(" - American Kids by Kenny Chesney: A nostalgic and upbeat country song.");
+            Console.WriteLine("Returning to option list...\n");
+        }
+
+        // user story 3: Display Playlist
+        void DisplayPlaylist(List<string> playlist)
+        {
+            Console.WriteLine("\nHere is your generated playlist:");
+            if (playlist == null)
+            {
+                Console.WriteLine("No playlist has been created yet. Please create one first.");
+                return;
+            }
+            if (playlist.Count == 0)
+            {
+                Console.WriteLine("Your playlist is empty. Try generating a new playlist.");
+                return;
+            }
+            else
+            {
+                foreach (var song in playlist)
+                {
+                    Console.WriteLine("> " + song);
+                }
+            }
+        }
+
+        
+        List<string> GeneratePlaylistBySong(string song)
+        {   
+            if (string.IsNullOrEmpty(song))
+            {
+                return null;
+            }
+
+            Console.WriteLine($"Generating playlist based on {song}. This may take a few moments...");
+
+            ShowLoadingIndicator();
+
+            Thread.Sleep(1000);
+
+            HideLoadingIndicator();
+
+            // placeholder for microservice
+            List<string> playlist = new List<string>();
+            Console.WriteLine($"Playlist created based off {song}: ");
+            return playlist;
+        }
+
+        
+        List<string> GeneratePlaylistByGenre(string genre)
+        {
+            if (string.IsNullOrEmpty(genre))
+            {
+                return null;
+            }
+
+            Console.WriteLine($"Generating playlist based on {genre}. This may take a few moments...");
+
+            ShowLoadingIndicator();
+
+            Thread.Sleep(1000);
+
+            HideLoadingIndicator();
+
+            // placeholder for microservice
+            List<string> playlist = new List<string>();
+            Console.WriteLine($"Playlist created by {genre} genre: ");
+            return playlist;
+        }
+
+        void ShowLoadingIndicator()
+        {
+            Console.Write("Loading");
+            for (int i = 0; i < 3; i++)
+            {
+                Thread.Sleep(500);
+                Console.Write(".");
+            }
+            Console.WriteLine();
+        }
+
+        void HideLoadingIndicator()
+        {
+            Console.Clear();
+            Console.WriteLine("Playlist generation complete!");
+        }
+    }
+}
